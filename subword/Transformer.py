@@ -30,7 +30,6 @@ class TrainingConfig(object):
 
 
 class ModelConfig(object):
-    embeddingSize = 20
 
     filters = 128  # 内层一维卷积核的数量，外层卷积核的数量应该等于embeddingSize，因为要确保每个layer后的输出维度和输入维度是一致的。
     numHeads = 8  # Attention 的头数
@@ -104,6 +103,7 @@ def fixedPositionEmbedding(batchSize, sequenceLen):
 
 # 模型构建
 
+
 class Transformer(object):
     """
     Transformer Encoder 用于文本分类
@@ -121,11 +121,9 @@ class Transformer(object):
         self.is_biLSTM = config.is_biLSTM
         self.max_seqlen = config.max_seqlen
 
-        self.embeddedPosition = fixedPositionEmbedding(config.batchSize, config.sequenceLength)
-
         # 定义模型的输入
         self.inputX = tf.placeholder(tf.int32, [None, config.max_seqlen], name="inputX")
-        self.inputY = tf.placeholder(tf.int32, [None], name="inputY")
+        self.inputY = tf.placeholder(tf.int32, [None, config.max_seqlen], name="inputY")
 
         self.dropoutKeepProb = tf.placeholder(tf.float32, name="dropoutKeepProb")
         self.embeddedPosition = tf.placeholder(tf.float32, [None, config.sequenceLength, config.sequenceLength],
@@ -157,10 +155,10 @@ class Transformer(object):
                     # 维度[batch_size, sequence_length, embedding_size]
                     self.embeddedWords = self._feedForward(multiHeadAtt,
                                                            [config.model.filters,
-                                                            config.model.embeddingSize + config.sequenceLength])
+                                                            config.embed_size + config.sequenceLength])
 
             outputs = tf.reshape(self.embeddedWords,
-                                 [-1, config.sequenceLength * (config.model.embeddingSize + config.sequenceLength)])
+                                 [-1, config.max_seqlen,config.embed_size + config.sequenceLength])
 
         outputSize = outputs.get_shape()[-1].value
         print("shape", np.shape(outputs),)
@@ -203,6 +201,8 @@ class Transformer(object):
             l2Loss += tf.nn.l2_loss(outputW)
             l2Loss += tf.nn.l2_loss(outputB)
             self.logits = tf.nn.xw_plus_b(outputs, outputW, outputB, name="logits")
+            print('logit', np.shape(self.logits))
+
 
             if config.numClasses == 1:
                 self.predictions = tf.cast(tf.greater_equal(self.logits, 0.0), tf.float32, name="predictions")
@@ -214,12 +214,23 @@ class Transformer(object):
 
             if config.numClasses == 1:
                 losses = tf.nn.sigmoid_cross_entropy_with_logits(logits=self.logits,
-                                                                 labels=tf.cast(tf.reshape(self.inputY, [-1, 1]),
+                                                                 labels=tf.cast(tf.reshape(self.inputY, [-1,config.max_seqlen, 1]),
                                                                                 dtype=tf.float32))
             elif config.numClasses > 1:
                 losses = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=self.logits, labels=self.inputY)
 
             self.loss = tf.reduce_mean(losses) + config.model.l2RegLambda * l2Loss
+
+        self.globalStep = tf.Variable(0, name="globalStep", trainable=False)
+
+        # 定义优化函数，传入学习速率参数
+        optimizer = tf.train.AdamOptimizer(config.training.learningRate)
+        # 计算梯度,得到梯度和变量
+        self.gradsAndVars = optimizer.compute_gradients(self.loss)
+        # 将梯度应用到变量下，生成训练器
+        self.trainOp = optimizer.apply_gradients(self.gradsAndVars, global_step=self.globalStep)
+
+        self.summaryOp = tf.summary.merge_all()
 
     def _layerNormalization(self, inputs, scope="layerNorm"):
         # LayerNorm层和BN层有所不同
@@ -321,7 +332,7 @@ class Transformer(object):
 
     def _feedForward(self, inputs, filters, scope="multiheadAttention"):
         # 在这里的前向传播采用卷积神经网络
-
+        print('feed forwardinputs', np.shape(inputs), filters)
         # 内层
         params = {"inputs": inputs, "filters": filters[0], "kernel_size": 1,
                   "activation": tf.nn.relu, "use_bias": True}
@@ -334,6 +345,8 @@ class Transformer(object):
         # 这里用到了一维卷积，实际上卷积核尺寸还是二维的，只是只需要指定高度，宽度和embedding size的尺寸一致
         # 维度[batch_size, sequence_length, embedding_size]
         outputs = tf.layers.conv1d(**params)
+        print('shape', 'input shape', np.shape(inputs), 'output shape', np.shape(outputs))
+
 
         # 残差连接
         outputs += inputs
@@ -453,10 +466,10 @@ class Transformer(object):
                     self.inputX: input_batch,
                     self.inputY: label_batch,
                     self.dropoutKeepProb: self.config.model.dropoutKeepProb,
-                    self.embeddedPosition: self.embeddedPosition
+                    self.embeddedPosition: fixedPositionEmbedding(self.config.batch_size, self.config.max_seqlen)
                 }
-                _, summary, step, loss, predictions = sess.run(
-                    [self.trainOp, self.summaryOp, self.globalStep, self.loss, self.predictions],
+                _, loss, predictions = sess.run(
+                    [self.trainOp, self.loss, self.predictions],
                     feed)
 
                 loss = np.sum(loss)

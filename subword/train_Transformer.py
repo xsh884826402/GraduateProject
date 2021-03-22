@@ -58,8 +58,8 @@ def main():
     model = Transformer(config)
     gpu_options = tf.GPUOptions(allow_growth=True)
     gpu_options =tf.GPUOptions(per_process_gpu_memory_fraction=0.5, allow_growth=True) ##每个gpu占用0.8                                                                              的显存
-    config=tf.ConfigProto(gpu_options=gpu_options,allow_soft_placement=True)
-    with tf.Session(config=config) as sess:
+    tf_config=tf.ConfigProto(gpu_options=gpu_options,allow_soft_placement=True)
+    with tf.Session(config=tf_config) as sess:
         if config.if_train:
             init=tf.global_variables_initializer()
             sess.run(init)
