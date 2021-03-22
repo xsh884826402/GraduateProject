@@ -3,7 +3,6 @@ import tensorflow as tf
 from Transformer import Transformer, Config
 from data_process import train_dev_split
 from data_process import load_data
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 
 
