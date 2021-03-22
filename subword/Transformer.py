@@ -15,6 +15,8 @@ import numpy as np
 import tensorflow as tf
 from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score
 from keras_preprocessing import sequence
+from data_process import write_preds, eval_metrics
+
 warnings.filterwarnings("ignore")
 
 
@@ -394,6 +396,57 @@ class Transformer(object):
                                    truncating='post')
         return [x, y]
 
+
+    def do_evaluation(self, sess, X, y, X_len, write_file):
+        (X, y) = self.padding_data(X, y, self.max_seqlen)
+        num_steps = len(X) // self.batch_size
+        # init_state = sess.run([self.initial_state])
+        x_test = []
+        y_test = []
+        y_refs = []
+        mean_loss = []
+        for step in list(range(num_steps)):
+            input_batch = X[step * self.batch_size:(step + 1) *
+                            self.batch_size]
+            label_batch = y[step * self.batch_size:(step + 1) *
+                            self.batch_size]
+            seq_len = X_len[step * self.batch_size:(step + 1) *
+                            self.batch_size]
+            feed = {
+                self.inputX: input_batch,
+                self.inputY: label_batch,
+                self.dropoutKeepProb: self.config.model.dropoutKeepProb,
+                self.embeddedPosition: fixedPositionEmbedding(self.config.batch_size, self.config.max_seqlen)
+            }
+
+            pred, loss_step = sess.run(
+                [self.predictions, self.loss], feed)
+            # print('pred shape: ', pred.shape)
+
+            y_test = y_test + pred.tolist()
+            x_test = x_test + input_batch.tolist()
+            y_refs = y_refs + label_batch.tolist()
+            loss_step = np.mean(loss_step)
+            mean_loss.append(loss_step)
+
+        left = len(X) % self.batch_size
+        input_batch = X[-self.batch_size:]
+        label_batch = y[-self.batch_size:]
+        seq_len = X_len[-self.batch_size:]
+        feed = {
+            self.inputX: input_batch,
+            self.inputY: label_batch,
+            self.dropoutKeepProb: self.config.model.dropoutKeepProb,
+            self.embeddedPosition: fixedPositionEmbedding(self.config.batch_size, self.config.max_seqlen)
+        }
+        pred = sess.run(self.predictions, feed)
+        y_test = y_test + pred.tolist()[-left:]
+        x_test = x_test + input_batch.tolist()[-left:]
+        y_refs = y_refs + label_batch.tolist()[-left:]
+        print('in do evaluation',type(y_test),y_test[1])
+        write_preds(y_test, write_file)
+
+        return x_test, y_test
 
     def test(self,
              sess,
