@@ -1,6 +1,6 @@
 import os
 import tensorflow as tf
-from Transformer import Transformer, Config
+from Transformer_softmax import Transformer, Config
 from data_process import train_dev_split
 from data_process import load_data
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
@@ -10,7 +10,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 #     def __init__(self):
 #         self.batch_size = 1024
 #         self.hidden_size = 64
-#         self.vocab_size = 26
+#         self.vocab_size = 26git
 #         self.embed_size = 512
 #         self.max_epochs = 40
 #         self.label_kinds = 2
@@ -46,7 +46,7 @@ def main():
     config.train_file = '../data/train.txt'
     config.dev_file = '../data/dev.txt'
     config.vocab_file = '../data/vocab.txt'
-    config.model_path = 'models/Transformer/'
+    config.model_path = 'models/Transformer_softmax/'
 
     config.split_ratio = 0.8
 
