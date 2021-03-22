@@ -52,7 +52,7 @@ def main():
             seq_len_test = list(map(lambda x: len(x), X_test))
 
             print('Target to special model to test')
-            test_model = os.path.join(config.model_path, "models_epoch5")
+            test_model = os.path.join(config.model_path, "models_epoch10")
             print('Start do predicting...')
             model.test(sess, test_model, X_test, y_test, seq_len_test,
                              config.vocab_file, config.model_path + 'result/')
