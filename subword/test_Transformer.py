@@ -1,7 +1,7 @@
 import os
 import argparse
 import tensorflow as tf
-from Transformer import Transformer, Config
+from Transformer_softmax import Transformer, Config
 from data_process import train_dev_split
 from data_process import load_data
 parser = argparse.ArgumentParser()
