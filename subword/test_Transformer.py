@@ -25,7 +25,7 @@ def main():
     config.train_file = '../data/train.txt'
     config.dev_file = '../data/dev.txt'
     config.vocab_file = '../data/vocab.txt'
-    config.model_path = 'models/Transformer/'
+    config.model_path = 'models/Transformer_softmax/'
 
     config.split_ratio = 0.8
 
