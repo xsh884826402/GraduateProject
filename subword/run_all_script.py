@@ -49,7 +49,7 @@ def f4():
     start ,end = model_range
     cmd = 'python test_Transformer.py '
     for i in range(start, end+1):
-        new_cmd = cmd+model_base_path+'epoch'+str(i)
+        new_cmd = cmd+model_base_path+'models_epoch'+str(i)
         os.system(new_cmd)
 
 
