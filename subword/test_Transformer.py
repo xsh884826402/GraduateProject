@@ -1,13 +1,15 @@
 import os
+import argparse
 import tensorflow as tf
 from Transformer import Transformer, Config
 from data_process import train_dev_split
 from data_process import load_data
+parser = argparse.ArgumentParser()
+parser.add_argument('model_path', type=str)
 
 
 
-
-def main():
+def main(test_model):
 
     config = Config()
     config.batch_size = 1024
@@ -52,7 +54,6 @@ def main():
             seq_len_test = list(map(lambda x: len(x), X_test))
 
             print('Target to special model to test')
-            test_model = os.path.join(config.model_path, "models_epoch10")
             print('Start do predicting...')
             model.test(sess, test_model, X_test, y_test, seq_len_test,
                              config.vocab_file, config.model_path + 'result/')
@@ -63,4 +64,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    args = parser.parse_args()
+    main(args.model_path)

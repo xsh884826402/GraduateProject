@@ -43,5 +43,15 @@ def f3():
             with open(output_wd_path, 'w') as fw:
                 fw.write("\n".join(wd_list))
 
+def f4():
+    model_range = [26, 30]
+    model_base_path = 'models/Transformer_softmax/'
+    start ,end = model_range
+    cmd = 'python test_Transformer.py '
+    for i in range(start, end+1):
+        new_cmd = cmd+model_base_path+'epoch'+str(i)
+        os.system(new_cmd)
+
+
 if __name__ == '__main__':
-    f3()
+    f4()
