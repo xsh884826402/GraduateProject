@@ -464,7 +464,7 @@ class Transformer(object):
         if not os.path.exists(write_file):
             xtest, ytest = self.do_evaluation(sess, X_test, y_test,
                                               list(X_len_test), write_file)
-        eval_metrics(write_file, modelname=model)
+        eval_metrics(write_file, modelname=model, refs_path=self.config.dev_file)
 
 
     def train_epoch(self,
@@ -477,7 +477,7 @@ class Transformer(object):
                     restore_model=False):
 
 
-        saver = tf.train.Saver(tf.trainable_variables())
+        saver = tf.train.Saver(tf.trainable_variables(), max_to_keep=self.config.max_epochs)
         if not os.path.exists(model_path):
             os.mkdir(model_path)
         ckpt = tf.train.get_checkpoint_state(model_path)

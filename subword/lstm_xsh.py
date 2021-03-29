@@ -366,18 +366,18 @@ class LSTM_Dynamic(object):
 
         return x_test, y_test
 
-    def padding_data(self, x, y, maxlen):
-        x = np.array(x)
-        x = sequence.pad_sequences(x,
-                                   maxlen=maxlen,
-                                   padding='post',
-                                   truncating='post')
-
-        y = sequence.pad_sequences(y,
-                                   maxlen = maxlen,
-                                   padding='post',
-                                   truncating='post')
-        return [x, y]
+    # def padding_data(self, x, y, maxlen):
+    #     x = np.array(x)
+    #     x = sequence.pad_sequences(x,
+    #                                maxlen=maxlen,
+    #                                padding='post',
+    #                                truncating='post')
+    #
+    #     y = sequence.pad_sequences(y,
+    #                                maxlen = maxlen,
+    #                                padding='post',
+    #                                truncating='post')
+    #     return [x, y]
 
     def test(self,
              sess,
@@ -407,7 +407,7 @@ class LSTM_Dynamic(object):
                     restore_model=False):
 
 
-        saver = tf.train.Saver(tf.trainable_variables())
+        saver = tf.train.Saver(tf.trainable_variables(), max_to_keep=self.max_epochs)
         if not os.path.exists(model_path):
             os.mkdir(model_path)
         ckpt = tf.train.get_checkpoint_state(model_path)

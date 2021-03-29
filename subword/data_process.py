@@ -3,6 +3,7 @@ from Trie import Trie
 #from inference import inference_main
 import os
 import random
+from collections import Counter
 sql_len = 20
 
 def word_to_subword(infile, outfile):
@@ -67,7 +68,7 @@ def make_label(infile, outfile):
                 fw.write(word+' '+''.join(label)+'\n')
     print('Make label Successfully')
 
-def train_dev_split(infile, train_file, dev_file, vocab_file, ratio=0.8):
+def train_dev_split(infile, train_file, dev_file, vocab_file,ratio=0.8):
     '''
     # shuffle数据并分割训练数据到train_file, dev_file
     :param infile:
@@ -274,7 +275,7 @@ def get_metrics(preds,refs, path, model_name='bests',k=20):
         )
 
 
-def eval_metrics(preds_file, modelname='bests',refs_path ='../data/dev.txt', k=10 ):
+def eval_metrics(preds_file, refs_path ='../data/dev.txt', modelname='bests', k=10 ):
     '''
 
     :param preds_file:the preds_file
@@ -297,9 +298,55 @@ def eval_metrics(preds_file, modelname='bests',refs_path ='../data/dev.txt', k=1
     # print('type refs,preds', type(refs), type(preds))
     get_metrics(preds, refs, preds_file, modelname,k=k)
 
+def count_most_frequent_number_words(infile, outfile, number=10000, buckets_len =300):
+    with open(infile, 'r') as fr:
+        words = fr.readline().strip().split()
+        c =Counter(words)
+        cc = c.most_common(number)
+    with open(outfile, 'w') as fw:
+        for word, count in cc:
+            fw.write(word+'\t'+str(count)+'\n')
+    print('Success ,store result file in {}'.format(outfile))
+
+    static_list = [0]*(10000//buckets_len+1)
+    for word, count in cc:
+        temp_count =count//buckets_len
+        if temp_count>=len(static_list):
+            static_list[-1]+=1
+        else:
+            static_list[temp_count]+=1
+
+    with open('../data/static_info.txt', 'w') as fw:
+        fw.write('\n'.join(list(map(str,static_list))))
+
+def generate_most_frequent_number_words(outfile, infile1='../data/most_frequent_words',infile2='../data/input_word_label.txt',):
+    with open(infile2, 'r') as fr:
+        word_label_dict = dict()
+        for line in fr:
+            content = line.strip().split()
+            word_label_dict[content[0]] = content[1]
+
+    words = []
+    with open(infile1) as fr:
+        for line in fr:
+            content = line.strip().split()
+            words.append(content[0])
+
+    with open(outfile, 'w') as fw:
+        for word in words:
+            fw.write(word+'\t'+word_label_dict[word]+'\n')
+    print("Success store result in {}".format(outfile))
+
+
+
+
+
 
 if __name__ =="__main__" :
-    infile = './data/text8'
-    word_to_subword(infile, outfile='./data/subword.txt')
-    # make_label('./data/subword.txt', './data/input_word_label.txt')
-    eval_metrics('./models/bilstm/result/pred_models_epoch38', './models/bilstm/modes_epoch38')
+    infile = '../data/text8'
+    outfile = '../data/most_frequent_words'
+    # generate_most_frequent_number_words('../data/most_frequent_words_label.txt')
+    train_dev_split('../data/most_frequent_words_label.txt', train_file='../data/most_frequent_words_label_train', dev_file='../data/most_frequent_words_label_dev')
+    # word_to_subword(infile, outfile='./data/subword.txt')
+    # # make_label('./data/subword.txt', './data/input_word_label.txt')
+    # eval_metrics('./models/bilstm/result/pred_models_epoch38', './models/bilstm/modes_epoch38')

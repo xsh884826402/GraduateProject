@@ -19,13 +19,13 @@ def main(test_model):
     config.max_epochs = 40
     config.label_kinds = 2
     config.if_train = True
-    config.if_test = False
+    config.if_test = True
     config.is_biLSTM = True
     config.max_seqlen = 20
 
-    config.original_file = '../data/input_word_label.txt'
-    config.train_file = '../data/train.txt'
-    config.dev_file = '../data/dev.txt'
+    config.original_file = '../data/most_frequent_words_label.txt'
+    config.train_file = '../data/most_frequent_words_label_train.txt'
+    config.dev_file = '../data/most_frequent_words_label_dev'
     config.vocab_file = '../data/vocab.txt'
     config.model_path = 'models/Transformer_softmax/'
 
@@ -41,7 +41,7 @@ def main(test_model):
     gpu_options =tf.GPUOptions(per_process_gpu_memory_fraction=0.5, allow_growth=True) ##每个gpu占用0.8                                                                              的显存
     tf_config=tf.ConfigProto(gpu_options=gpu_options,allow_soft_placement=True)
     with tf.Session(config=tf_config) as sess:
-        if config.if_train:
+        if config.if_test:
             init=tf.global_variables_initializer()
             sess.run(init)
             (X_test, y_test) = load_data(config.dev_file)

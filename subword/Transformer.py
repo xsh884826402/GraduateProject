@@ -456,7 +456,7 @@ class Transformer(object):
              X_len_test,
              dict_file="./data/char.dict",
              resultFile="result.txt"):
-        saver = tf.train.Saver(tf.trainable_variables())
+        saver = tf.train.Saver(tf.trainable_variables(), max_to_keep=self.config.max_epochs)
         saver.restore(sess, model)  #load model
         write_file = resultFile+'pred_' + os.path.basename(model)
         print('Start do eval...')

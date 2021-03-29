@@ -42,9 +42,9 @@ def main():
     config.is_biLSTM = True
     config.max_seqlen = 20
 
-    config.original_file = '../data/input_word_label.txt'
-    config.train_file = '../data/train.txt'
-    config.dev_file = '../data/dev.txt'
+    config.original_file = '../data/most_frequent_words_label.txt'
+    config.train_file = '../data/most_frequent_words_label_train.txt'
+    config.dev_file = '../data/most_frequent_words_label_dev'
     config.vocab_file = '../data/vocab.txt'
     config.model_path = 'models/Transformer_softmax/'
 

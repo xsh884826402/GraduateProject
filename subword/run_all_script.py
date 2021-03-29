@@ -44,7 +44,7 @@ def f3():
                 fw.write("\n".join(wd_list))
 
 def f4():
-    model_range = [26, 30]
+    model_range = [1, 39]
     model_base_path = 'models/Transformer_softmax/'
     start ,end = model_range
     cmd = 'python test_Transformer.py '
