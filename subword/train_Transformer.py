@@ -35,7 +35,7 @@ def main():
     config.hidden_size = 64
     config.vocab_size = 26
     config.embed_size = 300
-    config.max_epochs = 40
+    config.max_epochs = 300
     config.label_kinds = 2
     config.if_train = True
     config.if_test = False

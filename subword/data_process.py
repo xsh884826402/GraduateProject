@@ -315,7 +315,7 @@ def count_most_frequent_number_words(infile, outfile, number=10000, buckets_len 
             static_list[-1]+=1
         else:
             static_list[temp_count]+=1
-
+    static_list = [item/number for item in static_list]
     with open('../data/static_info.txt', 'w') as fw:
         fw.write('\n'.join(list(map(str,static_list))))
 
@@ -345,8 +345,9 @@ def generate_most_frequent_number_words(outfile, infile1='../data/most_frequent_
 if __name__ =="__main__" :
     infile = '../data/text8'
     outfile = '../data/most_frequent_words'
+    count_most_frequent_number_words(infile='../data/input_word_label.txt', outfile='../data/most_frequent_words')
     # generate_most_frequent_number_words('../data/most_frequent_words_label.txt')
-    train_dev_split('../data/most_frequent_words_label.txt', train_file='../data/most_frequent_words_label_train', dev_file='../data/most_frequent_words_label_dev')
+    # train_dev_split('../data/most_frequent_words_label.txt', train_file='../data/most_frequent_words_label_train', dev_file='../data/most_frequent_words_label_dev')
     # word_to_subword(infile, outfile='./data/subword.txt')
     # # make_label('./data/subword.txt', './data/input_word_label.txt')
     # eval_metrics('./models/bilstm/result/pred_models_epoch38', './models/bilstm/modes_epoch38')
