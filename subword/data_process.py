@@ -345,8 +345,8 @@ def generate_most_frequent_number_words(outfile, infile1='../data/most_frequent_
 if __name__ =="__main__" :
     infile = '../data/text8'
     outfile = '../data/most_frequent_words'
-    count_most_frequent_number_words(infile='../data/input_word_label.txt', outfile='../data/most_frequent_words')
-    # generate_most_frequent_number_words('../data/most_frequent_words_label.txt')
+    # count_most_frequent_number_words(infile='../data/input_word_label.txt', outfile='../data/most_frequent_words')
+    generate_most_frequent_number_words('../data/most_frequent_words_label.txt')
     # train_dev_split('../data/most_frequent_words_label.txt', train_file='../data/most_frequent_words_label_train', dev_file='../data/most_frequent_words_label_dev')
     # word_to_subword(infile, outfile='./data/subword.txt')
     # # make_label('./data/subword.txt', './data/input_word_label.txt')
